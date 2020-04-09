@@ -19,16 +19,20 @@
         var layspa = layui.layspa;
         var Router = layui.layspa_router;
 
-        var router = new Router([
-            {path: "/mybody2", use: "mybody2"},
-            {path: "/", use: "mybody"},
-        ]);
+        var router = new Router({
+            ruls: [
+                {path: "/mybody2", use: "mybody2"},
+                {path: "/", use: "mybody"},
+            ]
+        });
 
         layspa.run({
             el: "#target",
             router: router,
             render: function (r) {
                 return r("app");
+            },
+            ready: function () {
             }
         });
     });

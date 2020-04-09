@@ -44,7 +44,7 @@ layui.define(["jquery"], function (exports) {
                             } else {
                                 _this.$refs[at.value] = [$refs, dom];
                             }
-                        }else {
+                        } else {
                             _this.$refs[at.value] = dom;
                         }
                         continue;
@@ -112,10 +112,30 @@ layui.define(["jquery"], function (exports) {
             });
         } else {
 
-            // 加载自定义组件。
-            return new Promise(function (resolve, reject) {
-                layui.use([tag], function () {
-                    var mod = layui[tag];
+            var pro = Promise.resolve();
+
+            // 路由插槽
+            if (_this.$router.tagName === tag) {
+                pro = pro.then(function () {
+                    return _this.$router.getRouteMod();
+                });
+            } else {
+
+                // 加载自定义组件。
+                pro = pro.then(function () {
+                    return new Promise(function (resolve, reject) {
+                        layui.use([tag], function () {
+                            resolve(layui[tag]);
+                        });
+                    })
+                });
+            }
+
+            return pro.then(function (mod) {
+                return new Promise(function (resolve, reject) {
+                    if (!mod) {
+                        return render.call(_this, "div", {}, ["没有匹配到路由。"]);
+                    }
 
                     // 设置ref
                     for (var f in attr) {
@@ -141,37 +161,41 @@ layui.define(["jquery"], function (exports) {
                         _this.$childen.push(mod);
                     }
 
+                    // 加入路由
+                    if (_this.$router) {
+                        mod.$router = _this.$router;
+                    }
+
                     // 将当前组件作为子组件的父组件。
                     mod.$parent = _this;
 
-                    mod.render(render).then(function (tagDom) {
+                    mod.render(render.bind(_this)).then(function (tagDom) {
                         resolve(tagDom);
-                        mod.$el = tagDom;
                     });
                 });
             });
+
         }
     }
 
 
-    function layspa(option) { return option; }
+    function layspa(option) {
+        return option;
+    }
 
     /**
      * 注册一个单页组件
      */
-    layspa.component = function(render, option) {
-        option.render = render;
+    layspa.component = function (option) {
         if (option.name) {
             exports(option.name, option);
         }
-    };
+        option.reged = true;
 
-    /**
-     * 开始渲染组件树
-     */
-    layspa.run = function (option) {
-        if (option.title) {
-            document.title = option.title;
+        // 加入路由
+        if (option.router) {
+            option.$router = option.router;
+            delete option.router;
         }
 
         option.$getChilden = function (name) {
@@ -186,21 +210,40 @@ layui.define(["jquery"], function (exports) {
             return rs.length === 0 ? null : (rs.length === 1 ? rs[0] : rs);
         };
 
-        option.render(render).then(function (dom) {
+
+        option.onReady = function () {
+            // 先执行子组件的ready。
+            if (option.$childen) {
+                $.each(option.$childen, function (index, mod) {
+                    mod.$router = option.$router;
+                    mod && mod.onReady && mod.onReady();
+                });
+            }
+
+            option.ready && option.ready();
+        };
+    };
+
+    /**
+     * 开始渲染组件树
+     */
+    layspa.run = function (option) {
+        if (option.title) {
+            document.title = option.title;
+        }
+
+        // 未注册的组件，先注册。
+        if (!option.reged) {
+            layspa.component(option);
+        }
+
+        option.render(render.bind(option)).then(function (dom) {
             option.$el = dom;
             if (option.el) {
                 var $dom = $(option.el);
                 $dom.replaceWith(dom);
                 $dom.ready(function () {
-
-                    // 先执行子组件的ready。
-                    if (option.$childen) {
-                        $.each(option.$childen, function (index, mod) {
-                            mod && mod.ready && mod.ready(mod.$el);
-                        });
-                    }
-
-                    option.ready && option.ready($dom);
+                    option.onReady();
                 });
             }
         });

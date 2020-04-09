@@ -332,13 +332,13 @@ Parser.prototype.parseHtml = function(html, option) {
 
 // 转换为定义js。
 Parser.prototype.convertJs = function () {
-    let parents = this._views;
-    let a;
+    let trhjcmeorjgeorfgjcmeirghvrghvnhergfneugcvnerihugv = this._views;
+    let liegjnverghrcmlogjwecmoicgregihvmrthgcwemrc;
 
-    for (let i = 0; i < parents.chillden.length; i++) {
-        let node = parents.chillden[i];
+    for (let i = 0; i < trhjcmeorjgeorfgjcmeirghvrghvnhergfneugcvnerihugv.chillden.length; i++) {
+        let node = trhjcmeorjgeorfgjcmeirghvrghvnhergfneugcvnerihugv.chillden[i];
         if (node.type === "template") {
-            a = node.chillden.filter(val=> typeof val === "object")[0];
+            liegjnverghrcmlogjwecmoicgregihvmrthgcwemrc = node.chillden.filter(val=> typeof val === "object")[0];
             continue;
         }
         if (node.type === "script") {
@@ -355,7 +355,7 @@ Parser.prototype.convertJs = function () {
         if (typeof an ==="string") {
             return JSON.stringify(an);
         }
-        return "r.call(this,\"" + an.type + "\", "+ JSON.stringify(an.attrs) +", " + (function () {
+        return "r(\"" + an.type + "\", "+ JSON.stringify(an.attrs) +", " + (function () {
             let str = "[";
             if (an.chillden && an.chillden.length>0) {
                 for (let i = 0; i < an.chillden.length; i++) {
@@ -370,7 +370,7 @@ Parser.prototype.convertJs = function () {
         })() + ")";
     }
 
-    let result = makeRenderJs(a);
+    let result = makeRenderJs(liegjnverghrcmlogjwecmoicgregihvmrthgcwemrc);
 
     // console.log("javascript:", this.scriptNode.chillden);
 
@@ -404,6 +404,8 @@ Parser.prototype.convertJs = function () {
         "layspa.component(option);"+
         "})";
 };
+
+
 Parser.prototype._transform = function (chunk, enc, done) {
     var _this = this;
     try {
@@ -417,7 +419,7 @@ Parser.prototype._transform = function (chunk, enc, done) {
             attrs: {}
         };
 
-        var warn = function (msg) {_this._sfc.errors.push(msg);};
+        function warn(msg) {_this._sfc.errors.push(msg);};
         function start (tag, attrs, unary, start, end) {
 
             let newblock = {

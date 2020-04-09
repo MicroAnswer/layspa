@@ -4,7 +4,8 @@
  * @author Microanswer.cn
  * @date 2020年4月9日16点43分
  */
-layui.define([], function (exports) {
+layui.define(["jquery"], function (exports) {
+    var $ = layui.jquery;
 
     function parseUrl(url) {
         var tps = url.split("?");
@@ -31,7 +32,11 @@ layui.define([], function (exports) {
      * 路由插件。
      * @constructor
      */
-    function Router() {}
+    function Router(option) {
+        this.tagName = option.tagName || "layspa_router";
+        this.ruls = option.ruls || [];
+        this.init();
+    }
 
     /**
      * 初始化当前路由。
@@ -39,7 +44,7 @@ layui.define([], function (exports) {
     Router.prototype.init = function () {
         this.originHref = window.location.href;
 
-        var temps = this.originHref.split("#")[0];
+        var temps = this.originHref.split("#");
         this.htmlHref = temps[0];
         var o = parseUrl(this.htmlHref);
         this.htmlQuery = o.query;
@@ -50,7 +55,36 @@ layui.define([], function (exports) {
             var p = parseUrl(this.hashHref);
             this.hashQuery = p.query;
             this.hashPath = p.path;
+        } else {
+
+            this.hashHref = "/";
+            this.hashQuery = {};
+            this.hashPath = "/";
         }
+
+    };
+
+    /**
+     * 根据当前网页path，并比对路由规则，将匹配的组件以 Promise 放回.
+     */
+    Router.prototype.getRouteMod = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var r = null;
+            $.each(_this.ruls, function (index,route) {
+                if (route.path === _this.hashPath) {
+                    r = route;
+                }
+            });
+
+            if (!r) {
+                resolve(null);
+            }
+
+            layui.use([r.use], function () {
+                resolve(layui[r.use]);
+            })
+        });
     };
 
     exports("layspa_router", Router);
