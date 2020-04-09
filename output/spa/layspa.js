@@ -24,6 +24,8 @@ layui.define(["jquery"], function (exports) {
         'thead,tr,source,image');
 
     function render(tag, attr, childen) {
+        attr = attr || {};
+        childen = childen || [];
         var _this = this;
         // 普通h5节点
         if (isH5Tag(tag)) {
@@ -151,19 +153,25 @@ layui.define(["jquery"], function (exports) {
         }
     }
 
-    /**
-     * 单页组件加载器。
-     *
-     * @author Micranswer.cn
-     * @date 2020年4月8日10点05分
-     */
-    function layspa(option) {
-        if (option.title) {
-            document.title = option.title;
-        }
 
+    function layspa(option) { return option; }
+
+    /**
+     * 注册一个单页组件
+     */
+    layspa.component = function(render, option) {
+        option.render = render;
         if (option.name) {
             exports(option.name, option);
+        }
+    };
+
+    /**
+     * 开始渲染组件树
+     */
+    layspa.run = function (option) {
+        if (option.title) {
+            document.title = option.title;
         }
 
         option.$getChilden = function (name) {
@@ -196,7 +204,7 @@ layui.define(["jquery"], function (exports) {
                 });
             }
         });
-    }
+    };
 
     exports("layspa", layspa);
 });

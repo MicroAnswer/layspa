@@ -398,7 +398,10 @@ Parser.prototype.convertJs = function () {
             }
             return str + "\n";
         })() +
-        optionJsSrc.replace("layspa({", "var option = layspa({ render: function (r) {return " + result +"},") +
+        optionJsSrc.replace("layspa(", "var option=layspa(") +
+        ";" +
+        "option.render=function(r){return "+ result + "};" +
+        "layspa.component(option);"+
         "})";
 };
 Parser.prototype._transform = function (chunk, enc, done) {

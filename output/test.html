@@ -12,12 +12,26 @@
 <script src="https://cdn.jsdelivr.net/npm/es6-promise@4.2.8/dist/es6-promise.auto.min.js"></script>
 <script src="layui/layui.js"></script>
 <script>
-    layui.config({
-        base: "./spa/"
-    });
+    layui.config({base: "./spa/"});
 </script>
 <script>
-    layui.use("app");
+    layui.use(["layspa", "layspa_router"], function () {
+        var layspa = layui.layspa;
+        var Router = layui.layspa_router;
+
+        var router = new Router([
+            {path: "/mybody2", use: "mybody2"},
+            {path: "/", use: "mybody"},
+        ]);
+
+        layspa.run({
+            el: "#target",
+            router: router,
+            render: function (r) {
+                return r("app");
+            }
+        });
+    });
 </script>
 
 </body>
