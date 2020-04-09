@@ -332,7 +332,23 @@ Parser.prototype.parseHtml = function(html, option) {
 
 // 转换为定义js。
 Parser.prototype.convertJs = function () {
-    let a = this._views;
+    let parents = this._views;
+    let a;
+
+    for (let i = 0; i < parents.chillden.length; i++) {
+        let node = parents.chillden[i];
+        if (node.type === "template") {
+            a = node.chillden.filter(val=> typeof val === "object")[0];
+            continue;
+        }
+        if (node.type === "script") {
+            this.scriptNode = node;
+            continue;
+        }
+        if (node.type === "style") {
+            this.cssNode = node;
+        }
+    }
 
     function makeRenderJs (an) {
 
@@ -368,30 +384,10 @@ Parser.prototype.convertJs = function () {
         option = eval(optionJsSrc);
     }
 
-    // console.log("结果:", option);
-    //
-    // console.log("方法:", option.ready.toString());
-
     this._file.stem = option.name;
 
     option.use = option.use || [];
     option.use.push("layspa");
-
-    function fun2js(arg) {
-        if (typeof arg === "function") {
-            return arg.toString();
-        } else if (typeof arg === "object") {
-            let str = "";
-            for (let f in arg) {
-                if (typeof arg[f] === "function") {
-                    str += "option." + [f] + " = " + fun2js(arg[f]);
-                    str += ";";
-                }
-            }
-        } else {
-            return arg.toString();
-        }
-    }
 
     this._jsResult = "layui.define(" + JSON.stringify(option.use) + ", function(exports) {\n" +
         (function () {
@@ -403,14 +399,20 @@ Parser.prototype.convertJs = function () {
             return str + "\n";
         })() +
         optionJsSrc.replace("layspa({", "var option = layspa({ render: function (r) {return " + result +"},") +
-        "exports(\""+ option.name +"\", option); })";
+        "})";
 };
 Parser.prototype._transform = function (chunk, enc, done) {
     var _this = this;
     try {
         let content = chunk.toString("utf-8");
 
-        var parent = null;
+        var parent = {
+            type: "root",
+            chillden: [],
+            start: 0,
+            parent: null,
+            attrs: {}
+        };
 
         var warn = function (msg) {_this._sfc.errors.push(msg);};
         function start (tag, attrs, unary, start, end) {
@@ -424,25 +426,11 @@ Parser.prototype._transform = function (chunk, enc, done) {
                     var name = ref.name;
                     var value = ref.value;
 
-                    cumulated[name] = value || true;
+                    cumulated[name] = value;
                     return cumulated
                 }, {})
             };
-            if (tag === "style") {
-                _this.cssNode = newblock;
-                return;
-            } else if(tag === "script") {
-                _this.scriptNode = newblock;
-                return;
-            } else if( tag === "template") {
-                return;
-            }
-
-
-
-            if (parent) {
-                parent.chillden.push(newblock);
-            }
+            parent.chillden.push(newblock);
 
             if (unary) { // 自开自闭节点
             } else {
@@ -451,22 +439,12 @@ Parser.prototype._transform = function (chunk, enc, done) {
             }
         }
         function chars(text, start, index) {
-            if (parent && parent.parent && text) {
-                parent.chillden.push(text.replace(/( |[\r\n]){2,}/g, " "));
+            if (parent && text) {
+                parent.chillden.push(text);
             }
         }
         function end (tag, start) {
-            if (tag === "style") {
-                _this.cssNode.chillden.push(content.slice(_this.cssNode.start, start));
-                return;
-            } else if (tag === "script"){
-                _this.scriptNode.chillden.push(content.slice(_this.scriptNode.start, start));
-                return;
-            } else if(tag === "template") {
-                return;
-            }
-
-            if (parent　&& parent.parent) {
+            if (parent && parent.parent) {
                 parent = parent.parent;
             }
         }

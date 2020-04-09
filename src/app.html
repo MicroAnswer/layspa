@@ -1,0 +1,18 @@
+<template>
+    <div class="layui-layout layui-layout-admin">
+        <nav></nav>
+        <leftmenu></leftmenu>
+        <mybody></mybody>
+        <myfoot></myfoot>
+    </div>
+</template>
+<script>
+    layspa({
+        title: "layui-spa 单页面",
+        name: "app",
+        el: "#target",
+        ready: function () {
+            console.log("页面打开完成。");
+        }
+    });
+</script>
