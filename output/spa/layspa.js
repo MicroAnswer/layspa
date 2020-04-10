@@ -32,8 +32,8 @@ layui.define(["jquery"], function (exports) {
             return new Promise(function (resolve, reject) {
                 var dom = document.createElement(tag);
 
-                for (var f in attr) {
-                    var at = {name: f, value: attr[f]};
+                $.each(attr, function (k, v) {
+                    var at = {name: k, value: v};
 
                     if (at.name === 'ref') {
                         _this.$refs = _this.$refs || {};
@@ -47,8 +47,7 @@ layui.define(["jquery"], function (exports) {
                         } else {
                             _this.$refs[at.value] = dom;
                         }
-                        continue;
-                    }
+                    } else
 
                     if (at.name.indexOf("@") === 0) {
                         // 事件监听
@@ -59,13 +58,12 @@ layui.define(["jquery"], function (exports) {
                             _this.methods[at.value] && _this.methods[at.value].call(_this, dom, event);
                         });
 
-                        continue;
-                    }
+                    } else
 
                     if (at.name === 'class') {
                         dom.className = dom.className + " " + (at.value || "");
-                        continue;
-                    }
+
+                    } else
 
                     if (at.name === 'style') {
                         var style = at.value || "";
@@ -74,16 +72,15 @@ layui.define(["jquery"], function (exports) {
                             var sp = sps[j].split(":");
                             dom.style[sp[0].trim()] = (sp[1] || "").trim();
                         }
-                        continue;
-                    }
+
+                    } else
 
                     if (at.name === 'id') {
                         dom.id = at.value;
-                        continue;
+                    } else {
+                        dom.setAttribute(at.name, at.value);
                     }
-
-                    dom.setAttribute(at.name, at.value);
-                }
+                });
 
                 var p = Promise.resolve(dom);
                 if (childen && childen.length > 0) {
@@ -169,7 +166,8 @@ layui.define(["jquery"], function (exports) {
                     // 将当前组件作为子组件的父组件。
                     mod.$parent = _this;
 
-                    mod.render(render.bind(_this)).then(function (tagDom) {
+                    mod.render(render.bind(mod)).then(function (tagDom) {
+                        mod.$el = tagDom;
                         resolve(tagDom);
                     });
                 });
@@ -195,6 +193,13 @@ layui.define(["jquery"], function (exports) {
         // 加入路由
         if (option.router) {
             option.$router = option.router;
+
+            option.$router.onReplace(function (oldMod, newMod) {
+                layspa.run(newMod, function (newMod) {
+                    $(oldMod.$el).replaceWith(newMod.$el);
+                });
+            });
+
             delete option.router;
         }
 
@@ -209,7 +214,6 @@ layui.define(["jquery"], function (exports) {
             }
             return rs.length === 0 ? null : (rs.length === 1 ? rs[0] : rs);
         };
-
 
         option.onReady = function () {
             // 先执行子组件的ready。
@@ -227,7 +231,7 @@ layui.define(["jquery"], function (exports) {
     /**
      * 开始渲染组件树
      */
-    layspa.run = function (option) {
+    layspa.run = function (option, cb) {
         if (option.title) {
             document.title = option.title;
         }
@@ -239,6 +243,7 @@ layui.define(["jquery"], function (exports) {
 
         option.render(render.bind(option)).then(function (dom) {
             option.$el = dom;
+            cb && cb(option);
             if (option.el) {
                 var $dom = $(option.el);
                 $dom.replaceWith(dom);

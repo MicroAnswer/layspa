@@ -330,6 +330,20 @@ Parser.prototype.parseHtml = function(html, option) {
     this._elements = stack;
 };
 
+Parser.prototype.converUse = function (arr) {
+    let news = [];
+    arr.forEach((value, index) => {
+
+        if (Array.isArray(value)) {
+            news.push(value[0]);
+        } else {
+            news.push(value);
+        }
+    });
+
+    return news;
+};
+
 // 转换为定义js。
 Parser.prototype.convertJs = function () {
     let trhjcmeorjgeorfgjcmeirghvrghvnhergfneugcvnerihugv = this._views;
@@ -389,12 +403,19 @@ Parser.prototype.convertJs = function () {
     option.use = option.use || [];
     option.use.push("layspa");
 
-    this._jsResult = "layui.define(" + JSON.stringify(option.use) + ", function(exports) {\n" +
+    let uses = this.converUse(option.use);
+
+
+    this._jsResult = "layui.define(" + JSON.stringify(uses) + ", function(exports) {\n" +
         (function () {
             let str = "";
             for (let i = 0; i < option.use.length; i++) {
                 let mod = option.use[i];
-                str += "var " + mod + "=" + "layui." + mod + ";";
+                if (Array.isArray(mod)) {
+                    str += "var " + mod[1] + "=" + "layui." + mod[0] + ";";
+                } else {
+                    str += "var " + mod + "=" + "layui." + mod + ";";
+                }
             }
             return str + "\n";
         })() +

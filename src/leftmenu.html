@@ -6,8 +6,8 @@
                 <li class="layui-nav-item layui-nav-itemed">
                     <a class="" href="javascript:;">主页</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">控制台</a></dd>
-                        <dd><a href="javascript:;">主页一</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/">控制台</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/mybody2">主页一</a></dd>
                         <dd><a href="javascript:;">主页二</a></dd>
                     </dl>
                 </li>
@@ -55,9 +55,17 @@
 <script>
     layspa({
         name: "leftmenu",
-        use: [],
+        use: [
+            ["jquery", "$"]
+        ],
         ready: function () {
 
+        },
+        methods: {
+            goto: function (dom) {
+                var path = $(dom).data("path");
+                this.$router.push(path);
+            }
         }
     });
 </script>

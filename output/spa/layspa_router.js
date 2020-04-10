@@ -82,9 +82,45 @@ layui.define(["jquery"], function (exports) {
             }
 
             layui.use([r.use], function () {
-                resolve(layui[r.use]);
-            })
+                _this.mod = layui[r.use];
+                resolve(_this.mod);
+            });
         });
+    };
+
+    Router.prototype.onReplace = function (cb) {
+        this.onExchange = this.onExchange || [];
+        this.onExchange[0] = cb;
+    };
+
+    Router.prototype.applayPath = function (option) {
+        var _this = this;
+        _this.hashPath = option.path;
+        var oldMod = _this.mod;
+        _this.getRouteMod().then(function (mod) {
+            if (!mod) {
+                console.log("没有匹配到对应路由");
+            } else {
+                // 将当前组件替换为匹配到的组件。
+                $.each(_this.onExchange||[], function(index, cb) {
+                    cb(oldMod, mod);
+                });
+            }
+        })
+    };
+
+    Router.prototype.push = function(option) {
+        if (typeof option === "string") {
+            option = {
+                path: option
+            }
+        }
+
+        if (!option || !option.path) {
+            throw new Error("请指定跳转路径");
+        }
+
+        this.applayPath(option);
     };
 
     exports("layspa_router", Router);
