@@ -493,10 +493,12 @@ Parser.prototype._transform = function (chunk, enc, done) {
     done(null, _this._jsResult);
 };
 
-module.exports = function () {
+module.exports = function (option) {
     return new Transform({
         objectMode: true,
         transform (file, enc, callback) {
+
+            file.dirname = option.output;
 
             let parser = new Parser(file);
 

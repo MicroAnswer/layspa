@@ -7,35 +7,17 @@
                     <a class="" href="javascript:;">主页</a>
                     <dl class="layui-nav-child">
                         <dd><a href="javascript:;" @click="goto" data-path="/">控制台</a></dd>
-                        <dd><a href="javascript:;" @click="goto" data-path="/mybody2">主页一</a></dd>
-                        <dd><a href="javascript:;" @click="goto" data-path="/mybody3">主页二</a></dd>
-                        <dd><a href="javascript:;" @click="goto" data-path="/mybody4">主页三</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/page1">主页一</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/page2">主页二</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item">
                     <a href="javascript:;">组件</a>
                     <dl class="layui-nav-child">
-                        <dd><a href="javascript:;">按钮</a></dd>
-                        <dd><a href="javascript:;">表单</a></dd>
-                        <dd><a href="javascript:;">导航</a></dd>
-                        <dd><a href="javascript:;">选项卡</a></dd>
-                        <dd><a href="javascript:;">进度条</a></dd>
-                        <dd><a href="javascript:;">面板</a></dd>
-                        <dd><a href="javascript:;">徽章</a></dd>
-                        <dd><a href="javascript:;">时间线</a></dd>
-                        <dd><a href="javascript:;">动画</a></dd>
-                        <dd><a href="javascript:;">辅助</a></dd>
-                        <dd><a href="javascript:;">弹出层</a></dd>
-                        <dd><a href="javascript:;">日期时间</a></dd>
-                        <dd><a href="javascript:;">穿梭框</a></dd>
-                        <dd><a href="javascript:;">树形组件</a></dd>
-                        <dd><a href="javascript:;">颜色选择器</a></dd>
-                        <dd><a href="javascript:;">滑块组件</a></dd>
-                        <dd><a href="javascript:;">评分</a></dd>
-                        <dd><a href="javascript:;">轮播</a></dd>
-                        <dd><a href="javascript:;">流加载</a></dd>
-                        <dd><a href="javascript:;">工具</a></dd>
-                        <dd><a href="javascript:;">代码修饰</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/grid">栅格</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/panel">面板</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/buton">按钮</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/carousel">轮播</a></dd>
                     </dl>
                 </li>
 
@@ -61,7 +43,9 @@
         ],
         ready: function () {
             $("[data-path]").parent().removeClass("layui-this");
+            $("[data-path]").parents(".layui-nav-item").removeClass("layui-nav-itemed");
             $("[data-path='" + this.$router.hashPath + "']").parent().addClass("layui-this");
+            $("[data-path='" + this.$router.hashPath + "']").parents(".layui-nav-item").addClass("layui-nav-itemed");
         },
         methods: {
             goto: function (dom) {

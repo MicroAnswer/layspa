@@ -1,12 +1,25 @@
-const { src,dest } = require("gulp");
-const layspa = require("./gulp_layspa_maker");
+const { src,dest,parallel } = require("gulp");
 const uglify = require("gulp-uglify");
+const layspa = require("./build/gulp_layspa_maker");
+const config = require("./build/config");
 
-function defaultTask() {
-    return src("./src/**/*.html")
-        .pipe(layspa())
+function compileModTask() {
+    return src("./src/**/*" + config.ext)
+        .pipe(layspa({
+            output: "./output/spa/"
+        }))
         .pipe(uglify())
-        .pipe(dest("output/spa/"));
+        .pipe(dest("none"));
 }
 
-exports.default = defaultTask;
+function copyLibTask() {
+    return src("./lib/*.js")
+        .pipe(dest("./output/spa/"));
+}
+
+function copyIndexHtmlTask () {
+    return src("./index.html")
+        .pipe(dest("./output/"));
+}
+
+exports.default = parallel(compileModTask, copyLibTask, copyIndexHtmlTask);
