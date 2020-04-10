@@ -8,7 +8,8 @@
                     <dl class="layui-nav-child">
                         <dd><a href="javascript:;" @click="goto" data-path="/">控制台</a></dd>
                         <dd><a href="javascript:;" @click="goto" data-path="/mybody2">主页一</a></dd>
-                        <dd><a href="javascript:;">主页二</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/mybody3">主页二</a></dd>
+                        <dd><a href="javascript:;" @click="goto" data-path="/mybody4">主页三</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item">
@@ -59,7 +60,8 @@
             ["jquery", "$"]
         ],
         ready: function () {
-
+            $("[data-path]").parent().removeClass("layui-this");
+            $("[data-path='" + this.$router.hashPath + "']").parent().addClass("layui-this");
         },
         methods: {
             goto: function (dom) {

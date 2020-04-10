@@ -62,6 +62,15 @@ layui.define(["jquery"], function (exports) {
             this.hashPath = "/";
         }
 
+        window.onpopstate = this.onPopstateChange.bind(this);
+
+    };
+
+    Router.prototype.onPopstateChange = function (e) {
+        this.init();
+        this.applayPath({
+            path: this.hashPath
+        });
     };
 
     /**
@@ -120,6 +129,7 @@ layui.define(["jquery"], function (exports) {
             throw new Error("请指定跳转路径");
         }
 
+        history.pushState(null, null, this.htmlHref + "#" + option.path);
         this.applayPath(option);
     };
 

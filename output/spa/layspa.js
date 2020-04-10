@@ -14,10 +14,12 @@ layui.define(["jquery"], function (exports) {
         }
     }
 
+    var router;
+
     var isH5Tag = makeMap(
         'a,address,article,aside,base,blockquote,body,button,caption,center,col,colgroup,dd,' +
         'details,dialog,div,dl,dt,fieldset,figcaption,figure,footer,form,' +
-        'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,ul,ol,li,menuitem,meta,' +
+        'h1,h2,h3,h4,h5,h6,head,header,hgroup,hr,html,legend,ul,i,ol,label,li,menuitem,meta,' +
         'optgroup,option,param,rp,rt,span,source,style,summary,table,tbody,td,tfoot,th,thead,' +
         'title,tr,track,area,base,br,col,embed,frame,hr,img,input,isindex,keygen,' +
         'link,meta,param,source,track,wbr,colgroup,dd,dt,li,options,p,td,tfoot,th,' +
@@ -191,16 +193,26 @@ layui.define(["jquery"], function (exports) {
         option.reged = true;
 
         // 加入路由
-        if (option.router) {
-            option.$router = option.router;
+        if (option.router && !router) {
+            router = option.router;
 
-            option.$router.onReplace(function (oldMod, newMod) {
+            router.onReplace(function (oldMod, newMod) {
+
+                // 新组件和老组件相同， 什么都不处理。
+                if (oldMod.name === newMod.name) {
+                    return;
+                }
+
                 layspa.run(newMod, function (newMod) {
                     $(oldMod.$el).replaceWith(newMod.$el);
+                    newMod.onReady && newMod.onReady();
                 });
             });
-
             delete option.router;
+        }
+
+        if (router) {
+            option.$router = router;
         }
 
         option.$getChilden = function (name) {
@@ -241,7 +253,15 @@ layui.define(["jquery"], function (exports) {
             layspa.component(option);
         }
 
-        option.render(render.bind(option)).then(function (dom) {
+        // 这是已经渲染完成的。
+        var p;
+        if (option.$el) {
+            p = Promise.resolve(option.$el);
+        } else {
+            p = option.render(render.bind(option));
+        }
+
+        p.then(function (dom) {
             option.$el = dom;
             cb && cb(option);
             if (option.el) {

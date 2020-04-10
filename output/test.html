@@ -5,6 +5,7 @@
     <title>Test Page</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="layui/global.css">
 </head>
 <body class="layui-layout-body">
 <div id="target"></div>
@@ -21,6 +22,8 @@
 
         var router = new Router({
             ruls: [
+                {path: "/mybody4", use: "mybody4"},
+                {path: "/mybody3", use: "mybody3"},
                 {path: "/mybody2", use: "mybody2"},
                 {path: "/", use: "mybody"},
             ]
