@@ -400,11 +400,14 @@ Parser.prototype.convertJs = function () {
 
     this._file.stem = option.name;
 
+    function randomStr () {
+        return String(Math.random()).split(".")[1] + "_" + Date.now();
+    }
+
     option.use = option.use || [];
     option.use.push("layspa");
 
     let uses = this.converUse(option.use);
-
 
     this._jsResult = "layui.define(" + JSON.stringify(uses) + ", function(exports) {\n" +
         (function () {
@@ -421,6 +424,7 @@ Parser.prototype.convertJs = function () {
         })() +
         optionJsSrc.replace("layspa(", "var option=layspa(") +
         ";" +
+        (this.cssNode ? ("option.cssStrId=\"cid_" + randomStr() + "\";option.cssStr=" + JSON.stringify(this.cssNode.chillden.join(" ").replace(/\r\n/g,"")) + ";"):"") +
         "option.render=function(r){return "+ result + "};" +
         "layspa.component(option);"+
         "})";
